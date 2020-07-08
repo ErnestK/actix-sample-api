@@ -36,7 +36,7 @@ async fn main() -> io::Result<()> {
     env_logger::init();
     std::fs::create_dir_all("./store").unwrap();
     std::fs::create_dir_all("./preview").unwrap();
-    let host = "127.0.0.1:8080";
+    let host = "0.0.0.0:8088";
     
     HttpServer::new(|| {
         App::new()
