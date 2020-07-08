@@ -13,6 +13,7 @@ pub struct Info {
     ext: String
 }
 
+#[post("/load_decode_image")]
 pub async fn call(mut payload: Multipart, info: web::Query<Info>) -> Result<HttpResponse, Error> {
     // iterate over multipart stream
     while let Ok(Some(mut field)) = payload.try_next().await {

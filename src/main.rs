@@ -10,6 +10,18 @@ use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Res
 
 mod handlers;
 
+// TODO:
+// error handlers
+// dotenv
+// graceful shutdown
+// vector in params
+
+// tests
+// documenatation in code
+// readme( main documentation )
+// gitlab ci( travis ci )
+// use openCV for cci usage
+
 /// favicon handler
 #[get("/favicon")]
 async fn favicon() -> Result<fs::NamedFile> {
@@ -50,14 +62,9 @@ async fn main() -> io::Result<()> {
             .service(
                 web::resource("/")
                     .route(web::get().to(welcome))
-                    .route(web::post().to(handlers::save_file::call)),
+                    .route(web::post().to(handlers::load_image::call)),
             )
-            .service(
-                web::resource("/encode_image") // TODO: rename route
-                .route(
-                    web::post().to(handlers::save_encode_image::call)
-                )
-            )
+            .service(handlers::load_decode_image::call)
             .service(handlers::load_image_by_url::call)
             // static files
             .service(fs::Files::new("/preview", "preview").show_files_listing())

@@ -6,6 +6,8 @@ COPY . .
 
 RUN cargo install --path .
 
+# as slim as alpine ( +- 5mb), but have all libs and we need to
+# also it container created by Google, what why we can trust(+-) that container
 FROM gcr.io/distroless/cc-debian10
 
 COPY --from=build /usr/local/cargo/bin/actix-sample-api /usr/local/bin/actix-sample-api
