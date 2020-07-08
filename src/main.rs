@@ -13,14 +13,12 @@ mod handlers;
 // TODO:
 // error handlers
 // dotenv
-// graceful shutdown
 // vector in params
 
 // tests
-// documenatation in code
+// documentation in code
 // readme( main documentation )
-// gitlab ci( travis ci )
-// use openCV for cci usage
+// use openCV for test ffi usage
 
 /// favicon handler
 #[get("/favicon")]
@@ -68,9 +66,7 @@ async fn main() -> io::Result<()> {
             .service(handlers::load_image_by_url::call)
             // static files
             .service(fs::Files::new("/preview", "preview").show_files_listing())
-            // static files
             .service(fs::Files::new("/store", "store").show_files_listing())
-            // default
             .default_service(
                 // 404 for GET request
                 web::resource("").route(web::get().to(p404))
@@ -83,8 +79,22 @@ async fn main() -> io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn sample_test() {
-        assert!(true);
+    use super::*;
+    use actix_web::test;
+
+    #[actix_rt::test]
+    async fn test_welcome_ok() {
+        let req = test::TestRequest::default().to_http_request();
+        let resp = welcome(req).await;
+        assert_eq!(resp.unwrap().status(), StatusCode::OK);
+    }
+
+    #[actix_rt::test]
+    async fn test_p404_not_found() {
+        let mut app = test::init_service(App::new().route("/not_found", web::get().to(p404))).await;
+        let req = test::TestRequest::default().to_request();
+        let resp = test::call_service(&mut app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::NOT_FOUND);
     }
 }
