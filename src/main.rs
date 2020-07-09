@@ -11,7 +11,6 @@ use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Res
 mod handlers;
 
 // TODO:
-// error handlers
 // dotenv
 // vector in params
 
@@ -44,8 +43,8 @@ async fn welcome(req: HttpRequest) -> Result<HttpResponse> {
 async fn main() -> io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
-    std::fs::create_dir_all("./store").unwrap();
-    std::fs::create_dir_all("./preview").unwrap();
+    std::fs::create_dir_all("./store").expect("Error during creating directory for storing files!");
+    std::fs::create_dir_all("./preview").expect("Error during creating directory for preview files!");
     let host = "0.0.0.0:8088";
     
     HttpServer::new(|| {

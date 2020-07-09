@@ -1,17 +1,48 @@
 stages:
-    - build
+    - build_docker
+    - test
+    - doc
+    - build_binary
   
-  rust-latest:
-    stage: build
-    image: rust:latest
-    script:
-      - cargo build --verbose
-      - cargo test --verbose
-  
-  rust-nightly:
-    stage: build
-    image: rustlang/rust:nightly
-    script:
-      - cargo build --verbose
-      - cargo test --verbose
-    allow_failure: true
+
+    build_docker_image:
+        stage: build_docker
+        image: docker:latest
+        services:
+          - docker:dind
+        script:
+          - docker build -t actix-sample-api .  
+        only:
+            - master
+
+    rust-latest:
+        stage: build
+        image: rust:latest
+        script:
+            - cargo build --verbose
+
+    rust-nightly:
+        stage: build
+        image: rustlang/rust:nightly
+        script:
+            - cargo build --verbose
+        allow_failure: true
+
+    test:
+        stage: test
+        image: 'rust:latest'
+        script:
+        - rustc --version
+        - cargo --version
+        - cargo test --verbose
+
+    doc:
+        stage: doc
+        image: 'rust:latest'
+        script:
+            - cargo doc --no-deps
+            - mv target/doc public
+            - echo '<meta http-equiv="refresh" content="0; url={{ LIBRARY NAME }}">' > public/index.html
+        artifacts:
+            paths:
+            - public
