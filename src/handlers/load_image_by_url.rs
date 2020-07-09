@@ -10,7 +10,6 @@ pub struct Info {
     url: String,
 }
 
-#[post("/load_by_url")]
 pub async fn call(info: web::Query<Info>) -> Result<HttpResponse, LoadImageError> {
     let response = reqwest::get(&info.url).await.map_err(|_| LoadImageError::UrlForImageUnreachable)?;
 
@@ -33,4 +32,36 @@ pub async fn call(info: web::Query<Info>) -> Result<HttpResponse, LoadImageError
     create_preview(filename.to_string());
 
     Ok(HttpResponse::Ok().into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::{test, App};
+    use actix_web::http::StatusCode;
+    use std::fs;
+    use std::path::Path;
+    use crate::handlers::lib::{URL_TO_SAVE, URL_TO_PREVIEW};
+
+    #[actix_rt::test]
+    async fn test_load_image_by_url() {
+        let root_uri = "/";
+        let filename = "rust-logo-512x512.png";
+        let filepath = format!("{}/{}", URL_TO_SAVE, filename);
+        let preview_filepath = format!("{}/{}", URL_TO_PREVIEW, filename);
+        let params = format!("url=https://www.rust-lang.org/logos/{}", filename);
+        let uri = format!("{}?{}", root_uri, params);
+        let mut app = test::init_service(App::new().route(root_uri, web::get().to(call))).await;
+        let req = test::TestRequest::with_uri(&uri).to_request();
+
+        // TODO: is this bad that service do call to net and fail if cant, "yes" from one side and "no" from other
+        let resp = test::call_service(&mut app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::OK);
+        assert!(Path::new(&filepath).exists());
+        assert!(Path::new(&preview_filepath).exists());
+
+        fs::remove_file(filepath).expect("Failed during remove test image");
+        fs::remove_file(preview_filepath).expect("Failed during remove preview test image");
+    }
 }

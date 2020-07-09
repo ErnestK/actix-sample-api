@@ -3,7 +3,7 @@ use std::fmt;
 use log::error;
 
 pub const URL_TO_SAVE: &str = "store";
-const URL_TO_PREVIEW: &str = "preview";
+pub const URL_TO_PREVIEW: &str = "preview";
 
 pub fn create_preview(filename: String) {
     let width = 100;

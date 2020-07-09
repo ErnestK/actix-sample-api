@@ -9,16 +9,14 @@ use crate::handlers::lib::{create_preview, URL_TO_SAVE, LoadImageError};
 
 #[derive(Deserialize)]
 pub struct Info {
-    name: String,
-    ext: String
+    name: String
 }
 
 #[post("/load_decode_image")]
 pub async fn call(mut payload: Multipart, info: web::Query<Info>) -> Result<HttpResponse, LoadImageError> {
     // iterate over multipart stream
     while let Ok(Some(mut field)) = payload.try_next().await {
-        let filename = format!("{}.{}", &info.name, &info.ext);
-        let filepath = format!("{}/{}", URL_TO_SAVE, &filename);
+        let filepath = format!("{}/{}", URL_TO_SAVE, &info.name);
         // File::create is blocking operation, use threadpool
         let mut f = web::block(|| std::fs::File::create(filepath))
             .await
@@ -32,7 +30,7 @@ pub async fn call(mut payload: Multipart, info: web::Query<Info>) -> Result<Http
             f = web::block(move || f.write_all(&data).map(|_| f)).await.map_err(|_| LoadImageError::AsyncIo)?;
         }
 
-        create_preview(filename);
+        create_preview(info.name.to_string());
     }
     
     Ok(HttpResponse::Ok().into())

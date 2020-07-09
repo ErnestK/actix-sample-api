@@ -62,7 +62,10 @@ async fn main() -> io::Result<()> {
                     .route(web::post().to(handlers::load_image::call)),
             )
             .service(handlers::load_decode_image::call)
-            .service(handlers::load_image_by_url::call)
+            .service(
+                web::resource("/load_by_url")
+                    .route(web::post().to(handlers::load_image_by_url::call))
+            )
             // static files
             .service(fs::Files::new("/preview", "preview").show_files_listing())
             .service(fs::Files::new("/store", "store").show_files_listing())
@@ -90,7 +93,7 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_p404_not_found() {
-        let mut app = test::init_service(App::new().route("/not_found", web::get().to(p404))).await;
+        let mut app = test::init_service(App::new().route("/", web::get().to(p404))).await;
         let req = test::TestRequest::default().to_request();
         let resp = test::call_service(&mut app, req).await;
 
