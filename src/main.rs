@@ -10,15 +10,6 @@ use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Res
 
 mod handlers;
 
-// TODO:
-// dotenv
-// vector in params
-
-// tests
-// documentation in code
-// readme( main documentation )
-// use openCV for test ffi usage
-
 /// favicon handler
 #[get("/favicon")]
 async fn favicon() -> Result<fs::NamedFile> {
