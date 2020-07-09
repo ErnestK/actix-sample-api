@@ -6,7 +6,7 @@ use std::{env, io};
 use actix_files as fs;
 use actix_session::CookieSession;
 use actix_web::http::StatusCode;
-use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result,};
+use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result};
 
 mod handlers;
 
@@ -35,9 +35,10 @@ async fn main() -> io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=debug,actix_server=info");
     env_logger::init();
     std::fs::create_dir_all("./store").expect("Error during creating directory for storing files!");
-    std::fs::create_dir_all("./preview").expect("Error during creating directory for preview files!");
+    std::fs::create_dir_all("./preview")
+        .expect("Error during creating directory for preview files!");
     let host = "0.0.0.0:8088";
-    
+
     HttpServer::new(|| {
         App::new()
             // cookie session middleware
@@ -55,14 +56,14 @@ async fn main() -> io::Result<()> {
             .service(handlers::load_decode_image::call)
             .service(
                 web::resource("/load_by_url")
-                    .route(web::post().to(handlers::load_image_by_url::call))
+                    .route(web::post().to(handlers::load_image_by_url::call)),
             )
             // static files
             .service(fs::Files::new("/preview", "preview").show_files_listing())
             .service(fs::Files::new("/store", "store").show_files_listing())
             .default_service(
                 // 404 for GET request
-                web::resource("").route(web::get().to(p404))
+                web::resource("").route(web::get().to(p404)),
             )
     })
     .bind(host)?

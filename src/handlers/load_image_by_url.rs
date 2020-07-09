@@ -1,9 +1,8 @@
 use actix_web::{web, HttpResponse, Result};
-use reqwest;
-use std::io::Write;
 use serde::Deserialize;
+use std::io::Write;
 
-use crate::handlers::lib::{create_preview, URL_TO_SAVE, LoadImageError};
+use crate::handlers::lib::{create_preview, LoadImageError, URL_TO_SAVE};
 
 #[derive(Deserialize)]
 pub struct Info {
@@ -11,7 +10,9 @@ pub struct Info {
 }
 
 pub async fn call(info: web::Query<Info>) -> Result<HttpResponse, LoadImageError> {
-    let response = reqwest::get(&info.url).await.map_err(|_| LoadImageError::UrlForImageUnreachable)?;
+    let response = reqwest::get(&info.url)
+        .await
+        .map_err(|_| LoadImageError::UrlForImageUnreachable)?;
 
     let collection = &info.url.split("/").collect::<Vec<&str>>();
     let filename = collection.last();
@@ -25,9 +26,14 @@ pub async fn call(info: web::Query<Info>) -> Result<HttpResponse, LoadImageError
         .await
         .map_err(|_| LoadImageError::AsyncIo)?;
 
-    let data = response.bytes().await.expect("Error during get image data from url");
+    let data = response
+        .bytes()
+        .await
+        .map_err(|_| LoadImageError::InvalidData)?;
 
-    web::block(move || f.write_all(&data).map(|_| f)).await.map_err(|_| LoadImageError::AsyncIo)?;
+    web::block(move || f.write_all(&data).map(|_| f))
+        .await
+        .map_err(|_| LoadImageError::AsyncIo)?;
 
     create_preview(filename.to_string());
 
@@ -37,11 +43,11 @@ pub async fn call(info: web::Query<Info>) -> Result<HttpResponse, LoadImageError
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::{test, App};
+    use crate::handlers::lib::{URL_TO_PREVIEW, URL_TO_SAVE};
     use actix_web::http::StatusCode;
+    use actix_web::{test, App};
     use std::fs;
     use std::path::Path;
-    use crate::handlers::lib::{URL_TO_SAVE, URL_TO_PREVIEW};
 
     #[actix_rt::test]
     async fn test_load_image_by_url() {

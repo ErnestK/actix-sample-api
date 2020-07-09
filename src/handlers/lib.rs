@@ -1,6 +1,6 @@
 use actix_web::{HttpResponse, ResponseError};
-use std::fmt;
 use log::error;
+use std::fmt;
 
 pub const URL_TO_SAVE: &str = "store";
 pub const URL_TO_PREVIEW: &str = "preview";
@@ -52,7 +52,9 @@ impl ResponseError for LoadImageError {
 impl fmt::Display for LoadImageError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            LoadImageError::UrlForImageUnreachable => write!(f, "Url for image unreachable by get request"),
+            LoadImageError::UrlForImageUnreachable => {
+                write!(f, "Url for image unreachable by get request")
+            }
             LoadImageError::AsyncIo => write!(f, "IO error during creating file"),
             LoadImageError::InvalidData => write!(f, "Input data is invalid"),
             LoadImageError::DecodeBase64 => write!(f, "Error during decode base64 data"),
