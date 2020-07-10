@@ -15,8 +15,8 @@ images.
 posted somewhere on the Internet).
   - Create a square preview of the image size 100px by 100px.
 
-3 endpoints are implemented,
-You can see the downloaded pictures by endpoint `0.0.0.0:8088/store`                 
+3 endpoints are implemented,            
+plus additionally 2 endpoins using which you can see the downloaded pictures by endpoint `0.0.0.0:8088/store`                   
 preview `0.0.0.0:8088/preview`
 1) load_image
 Upload single image               
